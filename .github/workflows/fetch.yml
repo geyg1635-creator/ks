@@ -1,0 +1,32 @@
+permissions:
+  contents: write
+
+name: 每日抓取财经新闻
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 运行抓取脚本
+        run: python fetch_news.py
+
+      - name: 提交更新
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add index.html news.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "更新时政 $(date +'%Y-%m-%d')"
+          git push
