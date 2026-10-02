@@ -57,18 +57,29 @@ def main():
 
     updated = datetime.now().strftime("%Y-%m-%d %H:%M")
 
+    # 今日新闻（整条卡片可点击跳转）
     today_html = ""
     if unique_today:
         for item in unique_today[:12]:
-            link = f'<a href="{item["url"]}" target="_blank">🔗 原文</a>' if item["url"] else ""
-            today_html += f'''
-            <div class="news-item">
-              <div class="title">{item["title"]}</div>
-              <div class="meta"><span class="tag">{item["source"]}</span>{link}</div>
-            </div>'''
+            if item["url"]:
+                today_html += f'''
+                <a class="news-item news-link-card" href="{item["url"]}" target="_blank">
+                  <div class="title">{item["title"]}</div>
+                  <div class="meta">
+                    <span class="tag">{item["source"]}</span>
+                    <span class="news-link">🔗 点击查看原文</span>
+                  </div>
+                </a>'''
+            else:
+                today_html += f'''
+                <div class="news-item">
+                  <div class="title">{item["title"]}</div>
+                  <div class="meta"><span class="tag">{item["source"]}</span></div>
+                </div>'''
     else:
         today_html = '<div class="empty">今日接口暂无新数据，稍后会自动重试</div>'
 
+    # 高频考点
     topics_html = ""
     for t in history_data.get("topics", []):
         topics_html += f'''
@@ -77,6 +88,7 @@ def main():
           <div class="meta"><span class="tag">{t["tag"]}</span></div>
         </div>'''
 
+    # 历史重大时政
     history_html = ""
     for h in history_data.get("history", []):
         history_html += f'''
@@ -99,11 +111,13 @@ def main():
   .header h1 {{ font-size: 22px; color: #1a3a6b; margin-bottom: 4px; }}
   .header .date {{ font-size: 13px; color: #888; }}
   .section-title {{ font-size: 15px; font-weight: bold; color: #1a3a6b; margin: 20px 0 10px 2px; padding-bottom: 6px; border-bottom: 2px solid #f0f4f8; }}
-  .news-item {{ padding: 12px; border-radius: 12px; border: 1.5px solid #eef2f7; background: #fafcff; margin-bottom: 8px; }}
+  .news-item {{ display: block; padding: 12px; border-radius: 12px; border: 1.5px solid #eef2f7; background: #fafcff; margin-bottom: 8px; text-decoration: none; color: inherit; }}
+  .news-item.news-link-card {{ transition: 0.15s; cursor: pointer; }}
+  .news-item.news-link-card:hover {{ background: #eef5ff; border-color: #c5d3e8; }}
   .news-item .title {{ font-size: 14px; font-weight: 600; color: #2c3e50; line-height: 1.5; margin-bottom: 6px; }}
   .news-item .meta {{ display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }}
   .news-item .tag {{ font-size: 11px; color: #4a90d9; background: #e8f0fe; padding: 2px 8px; border-radius: 6px; }}
-  .news-item a {{ font-size: 12px; color: #4a90d9; text-decoration: none; }}
+  .news-item .news-link {{ font-size: 12px; color: #4a90d9; }}
   .empty {{ text-align: center; padding: 20px; color: #999; font-size: 14px; }}
   .footer {{ text-align: center; font-size: 12px; color: #aaa; margin-top: 24px; }}
 </style>
